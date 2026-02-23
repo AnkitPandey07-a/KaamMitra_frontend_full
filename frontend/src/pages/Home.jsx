@@ -32,7 +32,7 @@ export default function Home({ isLoggedIn, userName }) {
     fetchProfile();
   }, [isLoggedIn]);
 
-  // Load services based on login status
+  // Load services based on login status and city
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -55,7 +55,7 @@ export default function Home({ isLoggedIn, userName }) {
     };
 
     loadServices();
-  }, [city, search, isLoggedIn]);
+  }, [city, search, isLoggedIn]); // Keep as is but monitor if it fires too often
 
   const handleBookNowClick = (service) => {
     if (isLoggedIn) navigate(`/service/${service._id}`);
@@ -74,53 +74,53 @@ export default function Home({ isLoggedIn, userName }) {
 
       <section className="relative w-full min-h-[200px] sm:min-h-[400px] lg:min-h-[400px]">
 
-  <img
-    src={isLoggedIn ? "customer_landing.png" : "hero2.png"}
-    alt="Hero"
-    className="absolute inset-0 w-full h-full object-cover"
-  />
+        <img
+          src={isLoggedIn ? "customer_landing.png" : "hero2.png"}
+          alt="Hero"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
 
-  <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4">
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4">
 
-    {userName && (
-      <h1 className="text-3xl font-bold mb-4">Welcome, {userName}!</h1>
-    )}
+          {userName && (
+            <h1 className="text-3xl font-bold mb-4">Welcome, {userName}!</h1>
+          )}
 
-    {/* SEARCH BAR */}
-    <div className="flex items-center h-12 bg-white rounded-3xl overflow-hidden shadow-md max-w-xl w-full mb-4">
+          {/* SEARCH BAR */}
+          <div className="flex items-center h-12 bg-white rounded-3xl overflow-hidden shadow-md max-w-xl w-full mb-4">
 
-      <div className="flex items-center gap-1 bg-gradient-to-r from-blue-100 to-yellow-300 h-full text-black">
-        <MapPin size={20} className="text-blue-700 ml-2" />
-        <span className="font-semibold pr-4 whitespace-nowrap">
-          {isLoggedIn ? city || "Loading city..." : "All Cities"}
-        </span>
-      </div>
+            <div className="flex items-center gap-1 bg-gradient-to-r from-blue-100 to-yellow-300 h-full text-black">
+              <MapPin size={20} className="text-blue-700 ml-2" />
+              <span className="font-semibold pr-4 whitespace-nowrap">
+                {isLoggedIn ? city || "Loading city..." : "All Cities"}
+              </span>
+            </div>
 
-      <input
-        type="text"
-        placeholder="Search for services..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="flex-grow px-4 h-full text-black outline-none"
-      />
+            <input
+              type="text"
+              placeholder="Search for services..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-grow px-4 h-full text-black outline-none"
+            />
 
-      <button className="px-3 h-full text-gray-400 hover:bg-blue-800">
-        <Search/>
-      </button>
+            <button className="px-3 h-full text-gray-400 hover:bg-blue-800">
+              <Search />
+            </button>
 
-    </div>
+          </div>
 
-    <button
-      onClick={() =>
-        isLoggedIn ? navigate("/moreservices") : navigate("/login")
-      }
-      className="bg-blue-700 px-6 py-3 rounded-full text-white font-bold hover:bg-blue-800"
-    >
-      Book Now
-    </button>
+          <button
+            onClick={() =>
+              isLoggedIn ? navigate("/moreservices") : navigate("/login")
+            }
+            className="bg-blue-700 px-6 py-3 rounded-full text-white font-bold hover:bg-blue-800"
+          >
+            Book Now
+          </button>
 
-  </div>
-</section>
+        </div>
+      </section>
 
 
       {/* SERVICE SECTION */}
@@ -136,7 +136,7 @@ export default function Home({ isLoggedIn, userName }) {
         <ServicesMenu
           activeCategory={activeCategory}
           onCategoryClick={setActiveCategory}
-          className ="justify-center mb-8 sm:justify-start"
+          className="justify-center mb-8 sm:justify-start"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
@@ -183,12 +183,12 @@ export default function Home({ isLoggedIn, userName }) {
 
         </div>
       </section>
-        {/* ================= FOOTER SECTION ================= */}
+      {/* ================= FOOTER SECTION ================= */}
       {/* Proper separation from content */}
-     
-          <div className="mt-20 border-t border-gray-200 dark:border-gray-800">
-            <Footer />
-          </div>
+
+      <div className="mt-20 border-t border-gray-200 dark:border-gray-800">
+        <Footer />
+      </div>
     </div>
   );
 }

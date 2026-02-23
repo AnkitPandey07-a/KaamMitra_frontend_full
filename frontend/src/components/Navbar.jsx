@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, Moon, Sun, User, Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +26,7 @@ export default function Navbar({
   toggleDarkMode,
 }) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [servicesOpen, setServicesOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -41,6 +42,11 @@ export default function Navbar({
 
   useEffect(() => {
     function handleClickOutside(event) {
+      // Don't close if clicking on a dropdown toggle button
+      if (event.target.closest('[data-dropdown-toggle]')) {
+        return;
+      }
+
       if (servicesRef.current && !servicesRef.current.contains(event.target)) {
         setServicesOpen(false);
       }
@@ -53,21 +59,20 @@ export default function Navbar({
     }
 
     function handleScrollClose() {
-      if (servicesOpen || langOpen || profileOpen) {
-        setServicesOpen(false);
-        setLangOpen(false);
-        setProfileOpen(false);
-      }
+      setServicesOpen(false);
+      setLangOpen(false);
+      setProfileOpen(false);
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Use 'click' instead of 'mousedown' for better precision
+    document.addEventListener("click", handleClickOutside);
     window.addEventListener("scroll", handleScrollClose);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
       window.removeEventListener("scroll", handleScrollClose);
     };
-  }, [servicesOpen, langOpen, profileOpen]);
+  }, []);
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -98,9 +103,9 @@ export default function Navbar({
         <Link to="/" className="flex items-center gap-2 ml-2cd f  
         ">
           <img
-             src="/logo.png"
-                   alt="KaamMitra"
-                   className="h-20 w-auto object-contain transition duration-300 dark:brightness-0 dark:invert"
+            src="/logo.png"
+            alt="KaamMitra"
+            className="h-20 w-auto object-contain transition duration-300 dark:brightness-0 dark:invert"
           />
         </Link>
 
@@ -115,8 +120,12 @@ export default function Navbar({
               {/* Services Dropdown */}
               <div className="relative" ref={servicesRef}>
                 <button
+                  data-dropdown-toggle="true"
                   className="flex items-center gap-1 font-medium"
-                  onClick={() => setServicesOpen(!servicesOpen)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setServicesOpen(!servicesOpen);
+                  }}
                 >
                   {t("services")} <ChevronDown size={16} />
                 </button>
@@ -124,24 +133,31 @@ export default function Navbar({
                   <div
                     className="absolute top-full mt-1 rounded-md shadow-lg w-56 z-50
                                bg-white dark:bg-gray-800"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {SERVICES.slice(0, 10).map((name) => (
-                      <Link
+                      <button
                         key={name}
-                        to={`/service/${encodeURIComponent(name)}`}
-                        className="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => setServicesOpen(false)}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setServicesOpen(false);
+                          navigate(`/service/${encodeURIComponent(name)}`);
+                        }}
                       >
                         {name}
-                      </Link>
+                      </button>
                     ))}
-                    <Link
-                      to="/moreservices"
-                      className="block px-4 py-2 font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 border-t transition-colors"
-                      onClick={() => setServicesOpen(false)}
+                    <button
+                      className="block w-full text-left px-4 py-2 font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 border-t transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setServicesOpen(false);
+                        navigate("/moreservices");
+                      }}
                     >
                       {t("see_more")}
-                    </Link>
+                    </button>
                   </div>
                 )}
               </div>
@@ -150,7 +166,11 @@ export default function Navbar({
               {isLoggedIn ? (
                 <div className="relative" ref={profileRef}>
                   <button
-                    onClick={() => setProfileOpen(!profileOpen)}
+                    data-dropdown-toggle="true"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProfileOpen(!profileOpen);
+                    }}
                     className="flex items-center gap-2 focus:outline-none"
                   >
                     {profileImage ? (
@@ -175,28 +195,38 @@ export default function Navbar({
                     <div
                       className="absolute right-0 mt-2 w-48 rounded-md shadow-lg z-50
                                  bg-white dark:bg-gray-800"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Link
-                        to="/book-history"
-                        className="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => setProfileOpen(false)}
+                      <button
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProfileOpen(false);
+                          navigate("/book-history");
+                        }}
                       >
                         {t("my_book_history")}
-                      </Link>
-                      <Link
-                        to="/settings"
-                        className="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => setProfileOpen(false)}
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProfileOpen(false);
+                          navigate("/settings");
+                        }}
                       >
                         {t("settings")}
-                      </Link>
-                      <Link
-                        to="/logout"
-                        className="block px-4 py-2 text-red-600 font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => setProfileOpen(false)}
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-red-600 font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProfileOpen(false);
+                          navigate("/logout");
+                        }}
                       >
                         {t("logout")}
-                      </Link>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -222,8 +252,12 @@ export default function Navbar({
           {/* Language Dropdown */}
           <div className="relative" ref={langRef}>
             <button
+              data-dropdown-toggle="true"
               className="flex items-center gap-1 font-medium"
-              onClick={() => setLangOpen(!langOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLangOpen(!langOpen);
+              }}
             >
               {getLanguageName(i18n.language)} <ChevronDown size={16} />
             </button>
@@ -231,22 +265,32 @@ export default function Navbar({
               <div
                 className="absolute top-full mt-1 w-32 rounded-md shadow-lg z-50
                                  bg-white dark:bg-gray-800"
+                onClick={(e) => e.stopPropagation()}
               >
                 <button
                   className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => changeLanguage("en")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage("en");
+                  }}
                 >
                   English
                 </button>
                 <button
                   className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => changeLanguage("hi")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage("hi");
+                  }}
                 >
                   Hindi
                 </button>
                 <button
                   className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => changeLanguage("bn")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage("bn");
+                  }}
                 >
                   Bengali
                 </button>
@@ -283,36 +327,45 @@ export default function Navbar({
           {/* Services Dropdown */}
           <div>
             <button
-              onClick={() => setServicesOpen(!servicesOpen)}
+              data-dropdown-toggle="true"
+              onClick={(e) => {
+                e.stopPropagation();
+                setServicesOpen(!servicesOpen);
+              }}
               className="flex justify-between w-full font-semibold py-2"
             >
               {t("services")}
               <ChevronDown
                 size={16}
-                className={`transition-transform ${
-                  servicesOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform ${servicesOpen ? "rotate-180" : ""
+                  }`}
               />
             </button>
             {servicesOpen && (
               <div className="pl-3 space-y-2">
                 {SERVICES.map((name) => (
-                  <Link
+                  <button
                     key={name}
-                    to={`/service/${encodeURIComponent(name)}`}
-                    onClick={() => setMenuOpen(false)}
-                    className="block text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      navigate(`/service/${encodeURIComponent(name)}`);
+                    }}
+                    className="block text-sm w-full text-left"
                   >
                     {name}
-                  </Link>
+                  </button>
                 ))}
-                <Link
-                  to="/moreservices"
-                  onClick={() => setMenuOpen(false)}
-                  className="block font-semibold"
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    navigate("/moreservices");
+                  }}
+                  className="block font-semibold w-full text-left"
                 >
                   {t("see_more")}
-                </Link>
+                </button>
               </div>
             )}
           </div>
@@ -354,7 +407,11 @@ export default function Navbar({
           {/* Language Dropdown */}
           <div>
             <button
-              onClick={() => setLangOpen(!langOpen)}
+              data-dropdown-toggle="true"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLangOpen(!langOpen);
+              }}
               className="flex justify-between w-full font-semibold py-2"
             >
               {t("language")}
@@ -366,19 +423,28 @@ export default function Navbar({
             {langOpen && (
               <div className="pl-3 space-y-2">
                 <button
-                  onClick={() => changeLanguage("en")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage("en");
+                  }}
                   className="block text-sm w-full text-left"
                 >
                   English
                 </button>
                 <button
-                  onClick={() => changeLanguage("hi")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage("hi");
+                  }}
                   className="block text-sm w-full text-left"
                 >
                   Hindi
                 </button>
                 <button
-                  onClick={() => changeLanguage("bn")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage("bn");
+                  }}
                   className="block text-sm w-full text-left"
                 >
                   Bengali

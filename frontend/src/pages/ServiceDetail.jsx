@@ -726,31 +726,29 @@ const ServiceDetail = () => {
      FETCH SERVICE BY ID + ALL SERVICES
   ------------------------------------------------------ */
   useEffect(() => {
-    const loadService = async () => {
+    const loadData = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         if (!serviceId) throw new Error("Service ID missing");
 
-        const result = await getServiceById(serviceId);
-        setService(result);
-      } catch (err) {
-        console.error("Error fetching service:", err);
-        setError(err.message);
-      }
-    };
+        const [serviceResult, allServicesList] = await Promise.all([
+          getServiceById(serviceId),
+          getAllServices()
+        ]);
 
-    const loadAll = async () => {
-      try {
-        const list = await getAllServices();
-        setAllServices(list);
+        setService(serviceResult);
+        setAllServices(allServicesList);
       } catch (err) {
-        console.error("Error fetching all services", err);
+        console.error("Error fetching data:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    loadService();
-    loadAll();
+    loadData();
   }, [serviceId]);
 
   /* -----------------------------------------------------
@@ -788,8 +786,8 @@ const ServiceDetail = () => {
   const img = service.imageUrl
     ? service.imageUrl
     : `https://placehold.co/800x400/525252/FFF?text=${encodeURIComponent(
-        serviceName
-      )}`;
+      serviceName
+    )}`;
 
   const description =
     service.description || `Professional ${serviceName} service.`;
@@ -818,7 +816,7 @@ const ServiceDetail = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           <div className="flex flex-col md:flex-row">
-            
+
             {/* IMAGE */}
             <div className="md:w-1/2 relative">
               <img
